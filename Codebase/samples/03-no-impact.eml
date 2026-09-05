@@ -1,0 +1,17 @@
+From: "Dana Whitfield" <dana.whitfield@corp.example.com>
+To: "CMDL Data Engineering" <cmdl-data-eng@corp.example.com>
+Subject: [Notice] LEGACY_SEGMENT_CODE decommission - PROSPECT_MASTER
+Date: Wed, 5 Aug 2026 08:02:10 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Team,
+
+LEGACY_SEGMENT_CODE on PROSPECT_MASTER will be decommissioned effective
+2026-10-01. The attribute has been superseded by SEGMENT_CODE_V2.
+
+Please confirm whether your team consumes this attribute.
+
+- Dana Whitfield
+  DNA Data Office

@@ -1,0 +1,16 @@
+# Things the hosted copy does not need. Keeping them out makes the upload
+# smaller and the site start faster. Everything Ripple actually runs on --
+# api/, ripple/, web/, mockrepo/, requirements.txt, vercel.json -- stays.
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+requirements-dev.txt
+
+# The local history file. On a hosted copy history is written to temporary
+# space instead, so shipping a laptop's database would be misleading.
+ripple.db
+
+# Never upload secrets.
+.env

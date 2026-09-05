@@ -1,0 +1,19 @@
+From: "Marcus Hale" <marcus.hale@corp.example.com>
+To: "CMDL Data Engineering" <cmdl-data-eng@corp.example.com>
+Subject: [Notice] LAST_UPDATE_TIMESTAMP decommission - CUSTOMER_DEMOGRAPHICS
+Date: Tue, 4 Aug 2026 11:40:55 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Team,
+
+As part of the CODN table migration, LAST_UPDATE_TIMESTAMP will be removed from
+CUSTOMER_DEMOGRAPHICS effective 2026-08-28.
+
+No replacement attribute is planned at this time.
+
+Please review downstream dependencies and respond with any concerns.
+
+- Marcus Hale
+  CODN Platform Team

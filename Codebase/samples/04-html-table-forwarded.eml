@@ -1,0 +1,19 @@
+From: "Ops Mailbox" <ops-mailbox@corp.example.com>
+To: "CMDL Data Engineering" <cmdl-data-eng@corp.example.com>
+Subject: FW: [Action Required] CUSTOMER_ADDRESS attribute changes
+Date: Thu, 6 Aug 2026 16:20:00 +0100
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+
+<html><body>
+  <p>Forwarding for action.</p>
+  <hr>
+  <p><b>From:</b> Priya Raman<br><b>Sent:</b> 06 August 2026</p>
+  <p>Team, the following attributes change on <b>2026-09-18</b>:</p>
+  <table border="1">
+    <tr><th>Table</th><th>Attribute</th><th>Change</th></tr>
+    <tr><td>CUSTOMER_ADDRESS</td><td>COUNTRY_CODE</td><td>Value format change</td></tr>
+    <tr><td>CUSTOMER_DEMOGRAPHICS</td><td>MARKET_CODE</td><td>Value format change</td></tr>
+  </table>
+  <p>Regards,<br>Priya Raman, C360 Data Governance</p>
+  </body></html>

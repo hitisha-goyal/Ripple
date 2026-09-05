@@ -1,0 +1,11 @@
+# The parser is PINNED. sqlglot renames the keys inside its own parse-tree
+# nodes between major versions and the renames are SILENT, so an unpinned
+# upgrade does not fail: it quietly stops finding things.
+# tests/test_dialectcompat.py reads this line and fails loudly when the
+# installed version is not this one.
+sqlglot==30.17.0
+
+fastapi
+uvicorn
+pydantic
+pytest

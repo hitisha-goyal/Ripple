@@ -1,0 +1,21 @@
+From: "Priya Raman" <priya.raman@corp.example.com>
+To: "CMDL Data Engineering" <cmdl-data-eng@corp.example.com>
+Subject: [Action Required] MARKET_CODE & COUNTRY_CODE value format change - effective 2026-09-18
+Date: Mon, 3 Aug 2026 09:14:02 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Team,
+
+Effective 2026-09-18, MARKET_CODE and MARKET_NAME on CUSTOMER_DEMOGRAPHICS, and
+COUNTRY_CODE on CUSTOMER_ADDRESS, will change from ISO abbreviations to full
+country names.
+
+Example: 'US' will become 'United States'.
+
+Please assess downstream impact on your pipelines and confirm readiness by
+2026-09-10.
+
+- Priya Raman
+  C360 Data Governance

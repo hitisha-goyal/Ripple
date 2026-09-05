@@ -1,0 +1,30 @@
+# Kept out of this public repository on purpose: the overview document names
+# internal hostnames and internal approval processes.
+Ripple - Overview.pdf
+ripple-overview.html
+
+# Real code from work, kept here to test the reader against. Internal table and
+# dataset names, so it never goes near a public repository. Anything learned
+# from it belongs in the tests as neutral names and shapes, never verbatim.
+Docs/
+
+Codebase/.venv/
+Codebase/ripple.db
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.vercel/
+.env
+
+# Photographs taken on a phone, of a template from work. Same reason as Docs/:
+# this repository is public, and what is in the pictures is not.
+PPT/
+
+# A whole second copy of Ripple, generated so somebody can run and look at the
+# finished shape before building it by hand. Every file in it is copied from
+# Codebase, so committing it would be a second copy of the product that drifts
+# from the first. Two tools write it and it holds whichever ran last:
+# tools/make_build_folder.py for the kit-shaped one started with a batch file,
+# tools/make_demo_snapshot.py for the one that runs where nothing can be
+# installed. Deleting it costs one command. See "never commit a build artefact".
+RIPPLE COPILOT DEMO/

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ripple</title>
+
+<!-- The two typefaces are local files written by getfonts.py. If you skip them,
+     DELETE the next line rather than leaving the folder empty: left in, the
+     browser asks for a stylesheet that is not there and puts a red 404 in the
+     console on every page load, for ever, looking like a fault. -->
+<link rel="stylesheet" href="/static/fonts/fonts.css">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ====================================================================
+       THE SIDEBAR
+       Fixed, 288px, dark navy. The seven steps, then the two side screens,
+       then the status block pinned to the bottom. The status block answers
+       the two questions that decide whether any answer means anything:
+       which repository, and is the SQL dialect set.
+       ==================================================================== -->
+  <aside class="side">
+
+    <div class="brand">
+      <div class="brandname">Ripple</div>
+      <div class="brandsub">Upstream change impact</div>
+    </div>
+
+    <nav class="nav" aria-label="Steps">
+      <div class="navhead">Analysis</div>
+      <ol class="steps">
+        <li>
+          <button type="button" class="navitem" data-x="nav1">
+            <span class="navnum">1</span><span class="navtext">Notification</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="navitem" data-x="nav2">
+            <span class="navnum">2</span><span class="navtext">Review fields</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="navitem" data-x="nav3">
+            <span class="navnum">3</span><span class="navtext">Repository</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="navitem" data-x="nav4">
+            <span class="navnum">4</span><span class="navtext">Impact analysis</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="navitem" data-x="nav5">
+            <span class="navnum">5</span><span class="navtext">Dependency map</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="navitem" data-x="nav6">
+            <span class="navnum">6</span><span class="navtext">Summary</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="navitem" data-x="nav7">
+            <span class="navnum">7</span><span class="navtext">Reply</span>
+          </button>
+        </li>
+      </ol>
+
+      <div class="navsec">
+        <button type="button" class="navitem" data-x="navPast">
+          <span class="navnum">&#183;</span><span class="navtext">Past analyses</span>
+        </button>
+        <button type="button" class="navitem" data-x="navSettings">
+          <span class="navnum">&#183;</span><span class="navtext">Settings &amp; checks</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="status">
+      <div class="statusrow">
+        <span class="dot" data-x="repoDot"></span>
+        <span class="statuslbl">Repository</span>
+        <span class="statusval" data-x="repoStatus"></span>
+      </div>
+      <div class="statusrow">
+        <span class="dot" data-x="dialectDot"></span>
+        <span class="statuslbl">Dialect</span>
+        <span class="statusval" data-x="dialectStatus"></span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ====================================================================
+       THE RIGHT-HAND SIDE
+       A white header strip carrying the current step and a slot for the
+       progress line, then a scrolling area with a 1200px content column.
+       ==================================================================== -->
+  <div class="main">
+
+    <header class="head">
+      <div class="headstep" data-x="stepTitle"></div>
+      <div class="headprog" data-x="progress"></div>
+    </header>
+
+    <div class="scroll">
+      <div class="col" data-x="screen"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ======================================================================
+     THE SEVEN STEP SKELETONS
+     Each template holds the frame of one step and nothing that changes.
+     Every data-x is a handle app.js takes hold of, either to fill it in or
+     to hang a listener on it. No inline event handlers anywhere.
+
+     Deliberately empty: every count, name, warning and answer is written by
+     app.js from something that was actually read. A number printed in this
+     file would be a number nobody counted.
+     ====================================================================== -->
+
+<template id="t-step1">
+  <section class="card clip">
+    <div class="chead">
+      <span class="tag">Step 1</span>
+      <h2>Notification</h2>
+    </div>
+    <div class="pad lg">
+      <div class="pills">
+        <button type="button" class="pill tab" data-x="srcPaste">Paste the email</button>
+        <button type="button" class="pill tab" data-x="srcFile">Open a .msg or .eml file</button>
+      </div>
+
+      <div data-x="pastePane">
+        <label class="faint" for="i-email">The email as it arrived</label>
+        <textarea id="i-email" rows="12" data-x="emailText"></textarea>
+      </div>
+
+      <div data-x="filePane" hidden>
+        <label class="faint" for="i-emailfile">The saved message</label>
+        <input type="file" id="i-emailfile" accept=".msg,.eml,.txt" data-x="emailFile">
+      </div>
+
+      <div data-x="readNote"></div>
+    </div>
+
+    <div class="pad" data-x="readBack" hidden>
+      <div class="tag">What Ripple read</div>
+      <div class="factrow"><div>From</div><div data-x="nFrom"></div></div>
+      <div class="factrow"><div>Received</div><div data-x="nReceived"></div></div>
+      <div class="factrow"><div>Subject</div><div data-x="nSubject"></div></div>
+      <div class="factrow"><div>Table</div><div class="mono" data-x="nTable"></div></div>
+      <div class="factrow"><div>Fields</div><div class="chips" data-x="nFields"></div></div>
+      <div class="factrow"><div>Date of the change</div><div data-x="nDate"></div></div>
+      <div class="factrow"><div>Not understood</div><div data-x="nUnread"></div></div>
+    </div>
+
+    <div class="foot">
+      <button type="button" class="pri" data-x="doRead">Read the notification</button>
+      <span class="spacer"></span>
+      <button type="button" class="ghost" data-x="next1">Review the fields</button>
+    </div>
+  </section>
+</template>
+
+<template id="t-step2">
+  <section class="card clip">
+    <div class="chead">
+      <span class="tag">Step 2</span>
+      <h2>Review fields</h2>
+    </div>
+
+    <div class="pad lg">
+      <div class="grid2">
+        <div>
+          <div class="lbl">Fields to follow</div>
+          <div class="scrollbox" data-x="fieldList"></div>
+          <div data-x="fieldNote"></div>
+        </div>
+        <div class="rail">
+          <div class="lbl">Add one by hand</div>
+          <label class="faint" for="i-field">Field name</label>
+          <input type="text" id="i-field" data-x="fieldInput">
+          <div class="foot">
+            <button type="button" class="ghost sm" data-x="addField">Add this field</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pad">
+      <div class="grid2 even">
+        <div>
+          <label class="faint" for="i-table">The table being changed</label>
+          <input type="text" id="i-table" data-x="tableInput">
+        </div>
+        <div>
+          <label class="faint" for="i-change">What is happening to it</label>
+          <select class="drop" id="i-change" data-x="changeKind"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <button type="button" class="ghost" data-x="back2">Back</button>
+      <span class="spacer"></span>
+      <button type="button" class="pri" data-x="next2">Choose the repository</button>
+    </div>
+  </section>
+</template>
+
+<template id="t-step3">
+  <section class="card clip">
+    <div class="chead">
+      <span class="tag">Step 3</span>
+      <h2>Repository</h2>
+    </div>
+
+    <div class="pad lg">
+      <div class="pills">
+        <button type="button" class="pill tab" data-x="srcFolder">A folder on this machine</button>
+        <button type="button" class="pill tab" data-x="srcGithub">A repository over the network</button>
+      </div>
+
+      <div data-x="folderPane">
+        <label class="faint" for="i-repo">Folder</label>
+        <input type="text" id="i-repo" data-x="repoPath">
+      </div>
+
+      <div data-x="githubPane" hidden>
+        <label class="faint" for="i-ghurl">Repository address</label>
+        <input type="url" id="i-ghurl" data-x="ghUrl">
+        <div class="grid2 even">
+          <div>
+            <label class="faint" for="i-ghbranch">Branch</label>
+            <input type="text" id="i-ghbranch" data-x="ghBranch">
+          </div>
+          <div>
+            <label class="faint" for="i-ghtoken">Access token</label>
+            <input type="password" id="i-ghtoken" data-x="ghToken">
+          </div>
+        </div>
+        <div data-x="githubNote"></div>
+      </div>
+    </div>
+
+    <div class="pad">
+      <div class="grid2 even">
+        <div>
+          <label class="faint" for="i-dialect">SQL dialect</label>
+          <select class="drop" id="i-dialect" data-x="dialect"></select>
+          <div data-x="dialectNote"></div>
+        </div>
+        <div>
+          <label class="faint" for="i-prod">The tables this team publishes, one to a line</label>
+          <textarea id="i-prod" rows="6" data-x="prodList"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="pad" data-x="scanPane" hidden>
+      <div class="ifact">
+        <span class="spin" data-x="scanSpin"></span>
+        <span data-x="scanStage"></span>
+      </div>
+      <div class="chips" data-x="scanCounts"></div>
+      <div data-x="scanNote"></div>
+    </div>
+
+    <div class="foot">
+      <button type="button" class="ghost" data-x="back3">Back</button>
+      <span class="spacer"></span>
+      <button type="button" class="ghost" data-x="checkRepo">Check the folder</button>
+      <button type="button" class="pri" data-x="startScan">Start the analysis</button>
+    </div>
+  </section>
+</template>
+
+<template id="t-step4">
+  <section>
+    <div data-x="headline"></div>
+
+    <div class="statgroups" data-x="stats"></div>
+
+    <section class="card clip">
+      <div class="chead">
+        <span class="tag">Step 4</span>
+        <h2>What Ripple could see</h2>
+      </div>
+      <div class="pad" data-x="coverage"></div>
+      <div class="pad" data-x="gaps"></div>
+    </section>
+
+    <section class="card clip">
+      <div class="chead"><h2>Tables this team publishes</h2></div>
+      <div class="pad" data-x="groupsNote"></div>
+      <div class="groups" data-x="groups"></div>
+    </section>
+
+    <section class="card clip">
+      <div class="chead"><h2>Tables the chain ends at that are not on that list</h2></div>
+      <div class="pad" data-x="reachedNote"></div>
+      <div class="groups" data-x="reached"></div>
+    </section>
+
+    <section class="card clip">
+      <div class="chead"><h2>Uses in code that builds no table Ripple can name</h2></div>
+      <div class="pad" data-x="otherNote"></div>
+      <div class="groups" data-x="other"></div>
+    </section>
+
+    <section class="card clip">
+      <div class="chead"><h2>Everything Ripple could not follow</h2></div>
+      <div class="pad" data-x="unfollowed"></div>
+    </section>
+
+    <section class="card clip">
+      <div class="foot">
+        <button type="button" class="ghost" data-x="back4">Back</button>
+        <span class="spacer"></span>
+        <button type="button" class="pri" data-x="next4">See the dependency map</button>
+      </div>
+    </section>
+  </section>
+</template>
+
+<template id="t-step5">
+  <section class="card clip">
+    <div class="chead">
+      <span class="tag">Step 5</span>
+      <h2>Dependency map</h2>
+    </div>
+    <div class="pad" data-x="mapNote"></div>
+    <div data-x="map"></div>
+    <div class="legend" data-x="legend"></div>
+    <div class="pad" data-x="mapCapped"></div>
+    <div class="foot">
+      <button type="button" class="ghost" data-x="back5">Back</button>
+      <span class="spacer"></span>
+      <button type="button" class="pri" data-x="next5">Read the summary</button>
+    </div>
+  </section>
+</template>
+
+<template id="t-step6">
+  <section>
+    <div data-x="verdict"></div>
+
+    <section class="card clip">
+      <div class="chead">
+        <span class="tag">Step 6</span>
+        <h2>Summary</h2>
+        <span class="spacer"></span>
+        <span data-x="riskBadge"></span>
+      </div>
+      <div class="pad lg" data-x="summary"></div>
+      <div class="pad" data-x="summaryGaps"></div>
+      <div class="foot">
+        <button type="button" class="ghost" data-x="back6">Back</button>
+        <button type="button" class="ghost sm" data-x="copySummary">Copy the summary</button>
+        <span class="spacer"></span>
+        <button type="button" class="pri" data-x="next6">Draft the reply</button>
+      </div>
+    </section>
+  </section>
+</template>
+
+<template id="t-step7">
+  <section class="card clip">
+    <div class="chead">
+      <span class="tag">Step 7</span>
+      <h2>Reply</h2>
+    </div>
+
+    <div class="pad">
+      <div class="factrow"><div>To</div><div data-x="replyTo"></div></div>
+      <div class="factrow"><div>Subject</div><div data-x="replySubject"></div></div>
+    </div>
+
+    <div class="pad lg">
+      <label class="faint" for="i-reply">The reply, as Ripple drafted it</label>
+      <textarea id="i-reply" rows="18" data-x="replyBody"></textarea>
+      <div data-x="replyNote"></div>
+    </div>
+
+    <div class="foot">
+      <button type="button" class="ghost" data-x="back7">Back</button>
+      <button type="button" class="ghost sm" data-x="copyReply">Copy the reply</button>
+      <span class="spacer"></span>
+      <button type="button" class="danger sm" data-x="startOver">Start again</button>
+    </div>
+  </section>
+</template>
+
+<script src="/static/app.js" defer></script>
+</body>
+</html>

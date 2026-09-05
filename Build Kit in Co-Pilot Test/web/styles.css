@@ -1,0 +1,887 @@
+/* ==========================================================================
+   Ripple - the whole visual language of the tool.
+
+   WHY one stylesheet with named tokens: every screen is drawn by app.js out of
+   these class names. A colour written inline in a script is a colour nobody can
+   find again when it has to change, and two screens then drift apart.
+
+   Nothing in this file is loaded from a network. No framework, no build step.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. TOKENS
+   The palette is settled. Never write a colour anywhere but here.
+   The four line greys and the four ink tones are named for the job they do,
+   not for how dark they are, so a card border can never quietly become an
+   input border.
+   -------------------------------------------------------------------------- */
+
+:root{
+  --navy:#00175A; --blue:#006FCF; --blued:#005CAD; --pale:#E3F0FC;
+  --line:#DCE4EE; --line2:#C7D4E4; --line3:#E7EDF5; --hair:#F0F4F9;
+  --bg:#F2F5F9; --card:#fff; --tint:#FAFCFE;
+  --ink:#10243E; --body:#33445E; --mute:#5C6C84; --faint:#8595AB;
+  --chip:#EDF2F8; --chipink:#45566E;
+  --red:#B01C2E; --redbg:#FDE8E8; --redln:#F3C4C4;
+  --amber:#8A6100; --amberbg:#FFF4D9; --amberln:#EFDFAF;
+  --green:#006B40; --greenbg:#E4F5EC; --greenln:#BFE5CE;
+  --violet:#6D4B9E; --violetbg:#F0EAFA; --violetln:#D8C9EF;
+  --codebg:#FBFCFE; --codehead:#0B1F45; --codenum:#93A3B8;
+  --hit:#FFF7E1; --hitln:#F0DFAE; --hitbar:#E3A008; --hitpill:#FFF1CC;
+  --shadow:0 1px 2px rgba(16,36,62,.06);
+
+  /* The two families are declared once. Public Sans and IBM Plex Mono arrive
+     as local .woff2 files from getfonts.py; Segoe UI and Consolas are the
+     fallbacks that make the screens survive without them. */
+  --sans:'Public Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,'Courier New',monospace;
+
+  --side:288px;   /* sidebar width, fixed */
+  --colw:1200px;  /* content column width */
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET AND PAGE
+   -------------------------------------------------------------------------- */
+
+*,*::before,*::after{box-sizing:border-box}
+
+html,body{height:100%}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--body);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+
+/* WHY this is the one !important in the file: several containers below are
+   display:flex or display:grid, and a class rule of that kind beats the
+   browser's own meaning of the hidden attribute. The script hides panels with
+   hidden, so without this a hidden card stays on screen. */
+[hidden]{display:none !important}
+
+/* Focus has to be visible. The information button is reached by Tab and the
+   whole disclosure pattern is pointless if the ring is invisible. */
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+
+/* The scrollbar is styled everywhere it can be, because a browser overlay
+   scrollbar that fades out makes a list that carries on look like one that
+   was cut off. */
+*{scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid var(--card)}
+*::-webkit-scrollbar-thumb:hover{background:var(--faint)}
+
+/* --------------------------------------------------------------------------
+   3. SHELL, SIDEBAR, HEADER, CONTENT COLUMN
+   -------------------------------------------------------------------------- */
+
+.shell{display:flex;min-height:100vh}
+
+.side{
+  width:var(--side);
+  min-width:var(--side);
+  position:fixed;
+  top:0;left:0;bottom:0;
+  background:var(--navy);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  z-index:20;
+}
+
+.brand{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
+.brandname{font-size:20px;font-weight:800;letter-spacing:.01em;color:#fff}
+.brandsub{margin-top:2px;font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:rgba(227,240,252,.62)}
+
+/* The steps scroll if the window is short; the status block below does not. */
+.nav{flex:1 1 auto;overflow-y:auto;padding:14px 12px}
+.navhead{padding:10px 8px 6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(227,240,252,.50)}
+.navsec{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.10)}
+
+.navitem{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  padding:8px 10px;
+  margin:1px 0;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:rgba(227,240,252,.86);
+  font:inherit;
+  font-size:13px;
+  text-align:left;
+  cursor:pointer;
+}
+.navitem:hover{background:rgba(255,255,255,.07);color:#fff}
+.navitem.on{background:var(--blue);color:#fff;font-weight:600}
+.navitem.done .navnum{background:var(--green);border-color:var(--green);color:#fff}
+.navitem[disabled]{opacity:.45;cursor:default}
+.navitem[disabled]:hover{background:transparent}
+
+.navnum{
+  flex:0 0 auto;
+  width:22px;height:22px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:50%;
+  font-size:11px;font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.navitem.on .navnum{background:#fff;border-color:#fff;color:var(--blue)}
+.navtext{min-width:0;overflow-wrap:anywhere}
+
+/* The status block is pinned to the bottom of the sidebar. It answers the two
+   questions that decide whether a scan means anything at all: which repository,
+   and is the dialect set. */
+.status{
+  flex:0 0 auto;
+  padding:14px 16px 18px;
+  border-top:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.12);
+}
+.statusrow{display:flex;align-items:baseline;gap:8px;padding:4px 0;min-width:0}
+.statuslbl{flex:0 0 auto;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(227,240,252,.55)}
+.statusval{min-width:0;flex:1 1 auto;font-size:12px;color:#fff;overflow-wrap:anywhere}
+
+.dot{
+  flex:0 0 auto;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--faint);
+  align-self:center;
+}
+.dot.good{background:#3FBF7F}
+.dot.warn{background:#E3A008}
+.dot.bad{background:#E06A78}
+
+.main{
+  flex:1 1 auto;
+  min-width:0;                 /* a long path must not widen the page */
+  margin-left:var(--side);
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+.head{
+  position:sticky;top:0;z-index:10;
+  background:var(--card);
+  border-bottom:1px solid var(--line);
+  padding:14px 28px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  min-height:62px;
+}
+.headstep{min-width:0;font-size:16px;font-weight:700;color:var(--ink);overflow-wrap:anywhere}
+.headprog{min-width:0;flex:1 1 auto;display:flex;align-items:center;gap:10px;justify-content:flex-end;font-size:12px;color:var(--mute)}
+
+.scroll{flex:1 1 auto;overflow-y:auto;padding:22px 28px 64px}
+.col{width:100%;max-width:var(--colw);margin:0 auto;min-width:0}
+
+/* --------------------------------------------------------------------------
+   4. TYPE SCALE
+   Strongest first: --ink headings, --body paragraphs, --mute card labels,
+   --faint field labels and hints.
+   -------------------------------------------------------------------------- */
+
+.lbl{font-size:13px;font-weight:700;color:var(--mute);letter-spacing:.01em}
+.small{font-size:12px}
+.muted{color:var(--mute)}
+.faint{color:var(--faint);font-size:12px}
+.prose{color:var(--body);font-size:14px;line-height:1.55;max-width:78ch}
+.prose + .prose{margin-top:8px}
+
+h1,h2,h3{color:var(--ink);font-weight:700;line-height:1.3}
+h1{font-size:20px}
+h2{font-size:16px}
+h3{font-size:14px}
+
+/* Every table and column name on screen is monospace, so a name with an
+   underscore or a trailing digit can be read back correctly out loud. */
+code,.mono{font-family:var(--mono);font-size:12.5px}
+
+/* --------------------------------------------------------------------------
+   5. CARDS
+   -------------------------------------------------------------------------- */
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+  min-width:0;
+}
+.card:last-child{margin-bottom:0}
+
+/* A card clips its own contents, which is why the information panel opens in
+   the normal flow and never as a floating box. */
+.clip{overflow:hidden}
+
+.chead{
+  background:var(--tint);
+  border-bottom:1px solid var(--line3);
+  border-radius:12px 12px 0 0;
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.chead h2,.chead h3{min-width:0;overflow-wrap:anywhere}
+
+.pad{padding:14px 18px;min-width:0}
+.pad.lg{padding:20px 22px}
+.pad + .pad{border-top:1px solid var(--line3)}
+
+/* --------------------------------------------------------------------------
+   6. TWO-COLUMN LAYOUTS
+   .grid2 is main-plus-rail; .grid2.even is a true half and half. Every cell
+   gets min-width:0 and overflow-wrap:anywhere, or one forty-character table
+   name widens the grid until the findings walk off the right of the screen.
+   -------------------------------------------------------------------------- */
+
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+.grid2.even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.grid2 > *{min-width:0;overflow-wrap:anywhere}
+.rail{min-width:0;overflow-wrap:anywhere}
+
+@media (max-width:1100px){
+  .grid2,.grid2.even{grid-template-columns:minmax(0,1fr)}
+}
+
+/* --------------------------------------------------------------------------
+   7. BUTTONS
+   -------------------------------------------------------------------------- */
+
+button{font:inherit}
+
+button.pri,button.ghost,button.link,button.danger{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:9px 16px;
+  border-radius:8px;
+  border:1px solid transparent;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  min-width:0;
+}
+
+button.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+button.pri:hover{background:var(--blued);border-color:var(--blued)}
+
+button.ghost{background:var(--card);border-color:var(--line2);color:var(--ink)}
+button.ghost:hover{background:var(--pale);border-color:var(--blue);color:var(--navy)}
+
+button.link{background:transparent;border-color:transparent;color:var(--blue);padding:4px 2px;text-decoration:underline;font-weight:600}
+button.link:hover{color:var(--blued)}
+
+button.danger{background:var(--card);border-color:var(--redln);color:var(--red)}
+button.danger:hover{background:var(--redbg)}
+
+button.sm{padding:5px 10px;font-size:12px;border-radius:6px}
+
+button[disabled]{opacity:.5;cursor:default}
+button[disabled]:hover{background:var(--chip);border-color:var(--line2);color:var(--mute)}
+button.pri[disabled]:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* --------------------------------------------------------------------------
+   8. PILLS - the mode and source toggles
+   -------------------------------------------------------------------------- */
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 13px;
+  margin:0 6px 6px 0;
+  border:1px solid var(--line2);
+  border-radius:999px;
+  background:var(--card);
+  color:var(--body);
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+  min-width:0;
+}
+.pill:hover{border-color:var(--blue);color:var(--navy);background:var(--pale)}
+.pill.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.pill.on:hover{background:var(--navy);color:#fff}
+
+/* A tab reads as a tab, not as a loose chip: square corners and a joined edge. */
+.pill.tab{border-radius:8px 8px 0 0;margin:0 2px 0 0;border-bottom-color:transparent;padding:8px 15px}
+.pill.tab.on{background:var(--card);border-color:var(--line);border-bottom-color:var(--card);color:var(--navy)}
+
+.pills{display:flex;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid var(--line);margin-bottom:14px}
+
+/* --------------------------------------------------------------------------
+   9. BADGES, TAGS, CHIPS
+   -------------------------------------------------------------------------- */
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:2px 9px;
+  border-radius:999px;
+  border:1px solid var(--line2);
+  background:var(--chip);
+  color:var(--chipink);
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:.01em;
+  white-space:nowrap;
+}
+.badge.blue{background:var(--pale);border-color:#BBD9F5;color:var(--blued)}
+.badge.red{background:var(--redbg);border-color:var(--redln);color:var(--red)}
+.badge.amber{background:var(--amberbg);border-color:var(--amberln);color:var(--amber)}
+.badge.green{background:var(--greenbg);border-color:var(--greenln);color:var(--green)}
+.badge.violet{background:var(--violetbg);border-color:var(--violetln);color:var(--violet)}
+.badge.grey{background:var(--chip);border-color:var(--line2);color:var(--chipink)}
+.badge.sm{padding:1px 7px;font-size:10.5px}
+
+/* The small upper-case row label. */
+.tag{
+  display:inline-block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--faint);
+}
+
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  max-width:100%;
+  padding:3px 9px;
+  border:1px solid var(--line2);
+  border-radius:6px;
+  background:var(--chip);
+  color:var(--chipink);
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+.chip.mono{font-family:var(--mono);font-size:11.5px;background:var(--card)}
+.chip.alias{background:var(--violetbg);border-color:var(--violetln);color:var(--violet);font-family:var(--mono);font-size:11.5px}
+.chip.pattern{background:var(--amberbg);border-color:var(--amberln);color:var(--amber);font-family:var(--mono);font-size:11.5px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+
+/* A card that grows without a limit is a card that swallows the page. Any list
+   a real repository makes long goes in one of these. */
+.scrollbox{
+  max-height:224px;
+  overflow-y:auto;
+  padding:10px;
+  border:1px solid var(--line3);
+  border-radius:8px;
+  background:var(--tint);
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-content:flex-start;
+  min-width:0;
+}
+
+/* --------------------------------------------------------------------------
+   10. NOTES - the four kinds of on-screen note
+   -------------------------------------------------------------------------- */
+
+.note{
+  border:1px solid var(--line);
+  border-left:3px solid var(--line2);
+  border-radius:8px;
+  padding:10px 14px;
+  margin:10px 0;
+  font-size:13px;
+  color:var(--body);
+  background:var(--tint);
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.note.info{background:var(--pale);border-color:#BBD9F5;border-left-color:var(--blue);color:var(--navy)}
+.note.warn{background:var(--amberbg);border-color:var(--amberln);border-left-color:var(--hitbar);color:var(--amber)}
+.note.good{background:var(--greenbg);border-color:var(--greenln);border-left-color:var(--green);color:var(--green)}
+.note.bad{background:var(--redbg);border-color:var(--redln);border-left-color:var(--red);color:var(--red)}
+.note strong{font-weight:700}
+
+/* --------------------------------------------------------------------------
+   11. THE INFORMATION BUTTON
+   One control, used by every screen. The fact stays on the page; only the
+   reasoning goes inside the panel.
+
+   The family is .iwrap / .ifact / button.i / .ipanel on purpose. A bare .why
+   rule would also reach the amber tag on a matched code line further down
+   this file, and the two would then fight.
+   -------------------------------------------------------------------------- */
+
+.iwrap{min-width:0}
+
+.ifact{
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+
+button.i{
+  flex:0 0 auto;
+  width:16px;height:16px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line2);
+  border-radius:50%;
+  background:var(--card);
+  color:var(--mute);
+  font-family:var(--sans);
+  font-size:10px;
+  font-weight:700;
+  line-height:1;
+  cursor:pointer;
+  align-self:center;
+}
+button.i:hover{background:var(--pale);border-color:var(--blue);color:var(--blued)}
+button.i[aria-expanded="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* In the normal flow, underneath the fact. Never positioned: a card clips its
+   own contents and a floating panel is cut off at some window width nobody
+   tested. */
+.ipanel{
+  margin:7px 0 2px;
+  padding:10px 13px;
+  border:1px solid var(--line3);
+  border-left:3px solid var(--line2);
+  border-radius:8px;
+  background:var(--tint);
+  color:var(--body);
+  font-size:12.5px;
+  line-height:1.55;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.ipanel p{margin:0}
+.ipanel p + p{margin-top:7px}
+.ipanel[hidden]{display:none}
+
+/* --------------------------------------------------------------------------
+   12. STAT CARDS
+   Every row is the SAME grid. A short row leaves the rest of the row empty,
+   because a row with its own column count stretches two cards across half the
+   page while the row above holds five narrow ones.
+   -------------------------------------------------------------------------- */
+
+.statgroups{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;min-width:0}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+  min-width:0;
+}
+.stats > *{min-width:0;overflow-wrap:anywhere}
+
+@media (max-width:1500px){
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+.stat{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  padding:12px 14px;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.stat .lbl{font-size:11px;font-weight:600;color:var(--mute);letter-spacing:.02em}
+.stat .big{margin-top:2px}
+.stat.red{border-color:var(--redln);background:var(--redbg)}
+.stat.red .big{color:var(--red)}
+.stat.amber{border-color:var(--amberln);background:var(--amberbg)}
+.stat.amber .big{color:var(--amber)}
+.stat.green{border-color:var(--greenln);background:var(--greenbg)}
+.stat.green .big{color:var(--green)}
+.stat.violet{border-color:var(--violetln);background:var(--violetbg)}
+.stat.violet .big{color:var(--violet)}
+
+/* A counted number, wherever it appears. Tabular figures so a column of them
+   lines up. */
+.big{
+  font-size:26px;
+  font-weight:800;
+  color:var(--ink);
+  line-height:1.15;
+  font-variant-numeric:tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   13. THE FINDINGS LIST
+   -------------------------------------------------------------------------- */
+
+.groups{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+.group{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  min-width:0;
+}
+
+.ghead{
+  background:var(--tint);
+  border-bottom:1px solid var(--line3);
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.ghead h3{font-family:var(--mono);font-size:13px;color:var(--ink);min-width:0;overflow-wrap:anywhere}
+
+/* The column titles above the rows. Same grid as .row so they line up. */
+.rowhead,.row{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.2fr) minmax(0,110px);
+  gap:12px;
+  align-items:baseline;
+  padding:10px 16px;
+  min-width:0;
+}
+.rowhead > *,.row > *{min-width:0;overflow-wrap:anywhere}
+
+.rowhead{
+  background:var(--hair);
+  border-bottom:1px solid var(--line3);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  color:var(--faint);
+}
+
+.row{border-bottom:1px solid var(--hair);font-size:13px;cursor:pointer;background:var(--card);width:100%;border-left:0;border-right:0;border-top:0;text-align:left;font-family:var(--sans)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--tint)}
+.row.on{background:var(--pale)}
+.row .mono{font-family:var(--mono)}
+
+/* The expanded body of one finding. It is a sibling of the row, not a child,
+   so the row grid does not have to stretch around a code block. */
+.detail{
+  padding:4px 16px 18px;
+  border-bottom:1px solid var(--hair);
+  background:var(--tint);
+  min-width:0;
+}
+.detail:last-child{border-bottom:0}
+.detail[hidden]{display:none}
+
+@media (max-width:900px){
+  .rowhead{display:none}
+  .row{grid-template-columns:minmax(0,1fr);gap:4px}
+}
+
+/* --------------------------------------------------------------------------
+   14. THE CODE SNIPPET
+   -------------------------------------------------------------------------- */
+
+.code{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--codebg);
+  overflow:hidden;
+  margin:10px 0;
+  min-width:0;
+}
+
+/* The file the snippet came from. Dark, so it cannot be mistaken for a line
+   of the SQL itself. */
+.code .f{
+  background:var(--codehead);
+  color:#DCE7F7;
+  padding:8px 12px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+
+.code .body{
+  padding:8px 0;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:12px;
+  line-height:1.65;
+  min-width:0;
+}
+
+.code .ln{
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr);
+  gap:12px;
+  padding:0 12px;
+  white-space:pre;
+  color:var(--body);
+  border-left:3px solid transparent;
+}
+.code .ln .n{
+  color:var(--codenum);
+  text-align:right;
+  user-select:none;
+  font-variant-numeric:tabular-nums;
+}
+.code .ln .t{min-width:0}
+
+/* The matched line. The left bar is what the eye finds when the snippet is
+   fifteen lines long. */
+.code .ln.hit{background:var(--hit);border-left-color:var(--hitbar)}
+.code .ln.hit .n{color:var(--amber)}
+
+/* The amber tag riding on a matched line. This is .why - the class the
+   information button deliberately does not share. */
+.why{
+  display:inline-block;
+  margin-left:10px;
+  padding:0 7px;
+  border:1px solid var(--hitln);
+  border-radius:999px;
+  background:var(--hitpill);
+  color:var(--amber);
+  font-family:var(--sans);
+  font-size:10.5px;
+  font-weight:700;
+  white-space:normal;
+}
+
+/* --------------------------------------------------------------------------
+   15. THE DEPENDENCY MAP
+   A chain scrolls sideways inside its own row. Wrapping puts every box on a
+   line of its own and strands the arrows at the right-hand edge, so a picture
+   of a chain reads as a list of unconnected boxes.
+   -------------------------------------------------------------------------- */
+
+.maprow{
+  display:flex;
+  align-items:stretch;
+  gap:14px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--hair);
+  min-width:0;
+}
+.maprow:last-child{border-bottom:0}
+
+.mapsrc{
+  flex:0 0 210px;
+  align-self:center;
+  padding:10px 12px;
+  border:1px solid var(--line2);
+  border-radius:10px;
+  background:var(--pale);
+  color:var(--navy);
+  font-family:var(--mono);
+  font-size:12px;
+  overflow-wrap:anywhere;
+  min-width:0;
+}
+
+.branches{
+  flex:1 1 auto;
+  min-width:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding-bottom:8px;
+  /* The scrollbar is drawn, never left as the browser's fading overlay: a
+     chain that carries on past the edge must not look like one that was cut
+     off. */
+  scrollbar-width:auto;
+  scrollbar-color:var(--line2) var(--hair);
+}
+.branches::-webkit-scrollbar{height:12px}
+.branches::-webkit-scrollbar-track{background:var(--hair);border-radius:6px}
+.branches::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid var(--hair)}
+.branches::-webkit-scrollbar-thumb:hover{background:var(--faint)}
+
+.branch{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:nowrap;      /* never wrap: see the comment above */
+  white-space:nowrap;
+  padding:4px 0;
+}
+
+.node{
+  flex:0 0 auto;
+  max-width:280px;
+  padding:7px 11px;
+  border:1px solid var(--line2);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:11.5px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.node.prod{background:var(--greenbg);border-color:var(--greenln);color:var(--green)}
+.node.risk{background:var(--redbg);border-color:var(--redln);color:var(--red)}
+.node.star{background:var(--amberbg);border-color:var(--amberln);color:var(--amber)}
+.node.blind{background:var(--violetbg);border-color:var(--violetln);color:var(--violet)}
+
+.arrow{flex:0 0 auto;color:var(--faint);font-size:13px;user-select:none}
+
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 16px;
+  padding:10px 16px;
+  border-top:1px solid var(--line3);
+  background:var(--tint);
+  font-size:12px;
+  color:var(--mute);
+  min-width:0;
+}
+.legend > *{min-width:0;overflow-wrap:anywhere}
+
+/* --------------------------------------------------------------------------
+   16. ODDS AND ENDS
+   -------------------------------------------------------------------------- */
+
+/* A label and its value on one line, for the read-back of a notification. */
+.factrow{
+  display:grid;
+  grid-template-columns:minmax(0,170px) minmax(0,1fr);
+  gap:12px;
+  padding:8px 0;
+  border-bottom:1px solid var(--hair);
+  min-width:0;
+}
+.factrow:last-child{border-bottom:0}
+.factrow > *{min-width:0;overflow-wrap:anywhere}
+.factrow > :first-child{color:var(--faint);font-size:12px}
+
+@media (max-width:700px){
+  .factrow{grid-template-columns:minmax(0,1fr);gap:2px}
+}
+
+.drop{
+  width:100%;
+  max-width:420px;
+  padding:8px 11px;
+  border:1px solid var(--line2);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--ink);
+  font:inherit;
+  font-size:13px;
+  min-width:0;
+}
+.drop:hover{border-color:var(--blue)}
+
+input[type="text"],input[type="url"],input[type="password"],textarea{
+  width:100%;
+  padding:8px 11px;
+  border:1px solid var(--line2);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--ink);
+  font:inherit;
+  font-size:13px;
+  min-width:0;
+}
+textarea{font-family:var(--mono);font-size:12.5px;line-height:1.55;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+
+/* The strip of buttons at the bottom of a card. */
+.foot{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:14px 18px;
+  border-top:1px solid var(--line3);
+  background:var(--tint);
+  border-radius:0 0 12px 12px;
+  min-width:0;
+}
+
+/* Pushes what follows it to the right of a .foot or a .chead. It carries no
+   look of its own, so it can never be mistaken for something on screen. */
+.spacer{flex:1 1 auto;min-width:0}
+
+.spin{
+  display:inline-block;
+  width:14px;height:14px;
+  border:2px solid var(--line2);
+  border-top-color:var(--blue);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  vertical-align:-2px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Somebody who has switched motion off should not be given a spinning ring
+   they cannot stop. It still shows as a ring, so the row still reads as busy. */
+@media (prefers-reduced-motion:reduce){
+  .spin{animation:none;border-top-color:var(--line2)}
+}
+
+/* Past analyses. */
+.hist{display:flex;flex-direction:column;min-width:0}
+.hist > button{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,160px) minmax(0,110px);
+  gap:12px;
+  align-items:baseline;
+  width:100%;
+  padding:11px 16px;
+  border:0;
+  border-bottom:1px solid var(--hair);
+  background:var(--card);
+  color:var(--body);
+  font:inherit;
+  font-size:13px;
+  text-align:left;
+  cursor:pointer;
+}
+.hist > button:last-child{border-bottom:0}
+.hist > button:hover{background:var(--tint)}
+.hist > button > *{min-width:0;overflow-wrap:anywhere}
+
+@media (max-width:900px){
+  .hist > button{grid-template-columns:minmax(0,1fr);gap:3px}
+}
+
+/* An empty container must not leave a blank card with no explanation. app.js
+   fills these; this only stops one collapsing to nothing while it waits. */
+.groups:empty,.statgroups:empty,.chips:empty{display:none}

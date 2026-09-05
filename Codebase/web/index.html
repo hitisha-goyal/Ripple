@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ripple — upstream change impact analysis</title>
+<link rel="stylesheet" href="/static/fonts/fonts.css">
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='none' stroke='%23006FCF' stroke-width='8' opacity='.4'/><circle cx='50' cy='50' r='28' fill='none' stroke='%23006FCF' stroke-width='8' opacity='.75'/><circle cx='50' cy='50' r='13' fill='%2300175A'/></svg>">
+</head>
+<body>
+
+<nav class="side">
+  <div class="brand">
+    <span class="mark"><i></i><i></i><i></i><i class="pip"></i></span>
+    <div class="btext"><b>Ripple</b><span>Upstream change impact analysis</span></div>
+  </div>
+  <div class="sep"></div>
+  <div class="steps" id="steps"></div>
+  <div class="sep mid"></div>
+  <div class="navs">
+    <button class="navbtn" id="navHistory">Past analyses</button>
+    <button class="navbtn" id="navSettings">Settings &amp; checks</button>
+  </div>
+  <div class="status" id="status"></div>
+</nav>
+
+<div class="main">
+  <header>
+    <div><h1 id="hTitle">Notification</h1><p id="hSub">Step 1 of 7</p></div>
+    <div style="margin-left:auto" id="hRight"></div>
+  </header>
+  <div class="scroll"><div class="wrap" id="view"></div></div>
+</div>
+
+<!-- ══════════════ step 1 ══════════════ -->
+<template id="t-step1">
+  <div class="head">
+    <div><h2 data-x="title">New impact notification</h2><p data-x="sub"></p></div>
+    <div class="right">
+      <span class="lbl faint">Input mode</span>
+      <button class="pill" data-mode="email">From email</button>
+      <button class="pill" data-mode="manual">Enter manually</button>
+    </div>
+  </div>
+
+  <!-- email -->
+  <div data-x="emailMode">
+    <div class="grid2">
+      <div>
+        <div class="drop" id="drop">
+          <b>Drop the notification here</b>
+          <span class="muted small">Outlook <span class="mono">.msg</span>, <span class="mono">.eml</span> or a plain text file — or click to choose</span>
+          <input type="file" id="file" accept=".msg,.eml,.txt" hidden>
+        </div>
+        <div class="small muted" style="margin-top:16px;line-height:1.55">
+          No file? Use <b>Enter manually</b> above.
+          <!--<online-only>-->
+          <span class="faint" data-x="aiState"></span>
+          <!--</online-only>-->
+        </div>
+      </div>
+      <div class="rail">
+        <div class="card pad" data-x="does"></div>
+        <div class="note info" data-x="confirm"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- manual -->
+  <div data-x="manualMode" class="hide">
+    <div class="grid2">
+      <div class="card clip">
+        <div class="chead">
+          <b>Upstream tables &amp; attributes</b>
+          <span class="badge grey" style="margin-left:auto" data-x="manCount"></span>
+        </div>
+        <div data-x="manRows"></div>
+        <div class="pad" style="border-top:1px solid var(--hair);display:flex;align-items:center;gap:12px">
+          <button class="ghost sm" data-x="addRow">+ Add another table</button>
+          <span class="small faint">Add every table named in the notice.</span>
+        </div>
+      </div>
+      <div class="rail">
+        <div class="card pad">
+          <span class="lbl">Change details — all optional</span>
+          <div data-x="manFields"></div>
+        </div>
+        <div class="note good" data-x="noAi"></div>
+      </div>
+    </div>
+    <div class="card pad lg foot" style="margin-top:24px">
+      <button class="pri" data-x="manStart">Continue to repository</button>
+      <button class="ghost" data-x="manDemo">Fill with an example</button>
+      <span class="small faint" data-x="manHint"></span>
+    </div>
+  </div>
+</template>
+
+<!-- ══════════════ step 2 ══════════════ -->
+<template id="t-step2">
+  <div class="head">
+    <div><h2 data-x="title"></h2><p data-x="sub"></p></div>
+    <div class="right"><span class="muted" style="font-size:13px;font-weight:600" data-x="by"></span></div>
+  </div>
+  <div data-x="warnings"></div>
+  <div class="metagrid" data-x="meta"></div>
+  <div class="card pad lg">
+    <span class="lbl">Subject &amp; what is changing</span>
+    <div class="field"><input type="text" data-x="subject"></div>
+    <div class="field"><textarea rows="2" data-x="desc"></textarea></div>
+  </div>
+  <div class="card clip" style="margin-top:16px">
+    <div class="chead">
+      <span class="lbl">Upstream tables &amp; mapped attributes</span>
+      <span class="badge grey" style="margin-left:auto" data-x="count"></span>
+    </div>
+    <div data-x="rows"></div>
+    <div class="pad" style="border-top:1px solid var(--hair)">
+      <button class="ghost sm" data-x="addRow">+ Add another table</button>
+    </div>
+  </div>
+  <div class="foot"><button class="pri" data-x="next">Continue to repository</button></div>
+</template>
+
+<!-- ══════════════ step 3 ══════════════ -->
+<template id="t-step3">
+  <div class="head">
+    <div><h2 data-x="title">Connected repository</h2><p data-x="sub"></p></div>
+    <!--<online-only>-->
+    <div class="right">
+      <span class="lbl faint">Source</span>
+      <button class="pill" data-src="folder">This machine</button>
+      <button class="pill" data-src="github">GitHub</button>
+    </div>
+    <!--</online-only>-->
+  </div>
+  <div data-x="alert"></div>
+  <div class="grid2 even">
+    <div data-x="left"></div>
+    <!-- The confirmation of what is about to be scanned comes first. It used to
+         sit under the list of file types, which is a detail about the same
+         thing read after the decision it informs. -->
+    <div class="rail">
+      <div data-x="ready"></div>
+      <div class="card pad" data-x="kinds"></div>
+      <div class="card pad"><span class="lbl">What was understood</span><div data-x="cat"></div></div>
+      <div data-x="gaps"></div>
+    </div>
+  </div>
+  <div class="foot"><button class="pri" data-x="next">Run impact analysis</button>
+    <button class="ghost" data-x="reindex">Re-read the repository</button>
+    <span class="small faint" data-x="hint"></span></div>
+</template>
+
+<!-- ══════════════ step 4 ══════════════ -->
+<template id="t-step4">
+  <div class="head"><div><h2>Impact analysis</h2>
+    <p data-x="sub"></p></div>
+    <div class="right" data-x="risk"></div></div>
+  <div data-x="progress"></div>
+  <div class="statgroups" data-x="stats"></div>
+  <div class="groups" data-x="groups"></div>
+  <div data-x="gaps"></div>
+  <div class="foot"><button class="pri" data-x="next">Continue to dependency map</button></div>
+</template>
+
+<!-- ══════════════ step 5 ══════════════ -->
+<template id="t-step5">
+  <div class="head"><div><h2>Dependency map</h2>
+    <p data-x="sub">Where the changed attribute travels, and what it is called at each step.</p></div></div>
+  <div data-x="tabs" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px"></div>
+  <div data-x="map"></div>
+  <div class="foot"><button class="pri" data-x="next">Continue to summary</button></div>
+</template>
+
+<!-- ══════════════ step 6 ══════════════ -->
+<template id="t-step6">
+  <div class="head"><div><h2>Summary</h2><p data-x="sub"></p></div></div>
+  <div data-x="body"></div>
+  <div class="foot"><button class="pri" data-x="next">Continue to reply</button>
+    <button class="ghost" data-x="save">Save to history</button>
+    <span class="small faint" data-x="saved"></span></div>
+</template>
+
+<!-- ══════════════ step 7 ══════════════ -->
+<template id="t-step7">
+  <div class="head"><div><h2>Reply to the upstream team</h2>
+    <p>Drafted from the findings. Edit it, then copy it into Outlook.</p></div></div>
+  <div class="grid2">
+    <div class="card clip">
+      <div class="chead" data-x="to"></div>
+      <div class="chead" style="background:#fff">
+        <span class="small" style="font-weight:700;color:var(--mute);flex-shrink:0">Subject</span>
+        <input type="text" class="bare" data-x="subject">
+      </div>
+      <textarea class="bare" rows="15" data-x="body"
+        style="display:block;padding:18px 22px;font-size:14px;line-height:1.65"></textarea>
+      <div class="chead" style="border-bottom:none;border-top:1px solid var(--line3)">
+        <button class="pri" data-x="copy">Copy reply</button>
+        <button class="ghost" data-x="restart">Start a new analysis</button>
+        <span class="small faint" data-x="copied"></span>
+      </div>
+    </div>
+    <div class="card clip">
+      <div class="chead"><b>Next actions</b><span data-x="risk" style="margin-left:auto"></span></div>
+      <div class="pad"><ol class="acts" data-x="acts" style="margin-top:0"></ol></div>
+      <div data-x="deadline" style="margin:0 20px 20px"></div>
+    </div>
+  </div>
+</template>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

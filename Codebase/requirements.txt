@@ -1,0 +1,7 @@
+# Ripple - everything it needs, and nothing else.
+sqlglot==30.17.0         # reads SQL properly, so a column can be followed through renames
+fastapi==0.115.0          # the web service
+uvicorn==0.30.6           # runs it
+python-multipart==0.0.9   # file uploads
+httpx==0.27.2             # calls the AI model, when one is configured
+extract-msg==0.48.7       # opens Outlook .msg files
